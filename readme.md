@@ -28,4 +28,7 @@ AI Features in Next.js: Integrated various AI-driven features within the Next.js
 Carousel in Shadcn: Added a carousel component using Shadcn for better content presentation.
 <br/>
 <br/>
+for sending the email we're using the resend email
+<br/>
+<br/>
 And Many More: Additional features and improvements are continuously being added.
