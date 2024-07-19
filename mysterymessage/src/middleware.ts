@@ -1,8 +1,7 @@
-import {NextRequest, NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
 export { default } from "next-auth/middleware"
 
-//this method is used to get the token wherever we want 
+//this method is used to get the access to the token wherever we want from nextauth
 import { getToken } from "next-auth/jwt"
 
 
