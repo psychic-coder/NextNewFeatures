@@ -39,11 +39,12 @@ export const authOptions:NextAuthOptions={
                     throw new Error(error)
                 }
           }
-        })//for addingGithub provider we'll put a comma after credential provider and will add the github provider , for all the other providers wen just have to copy and paste from the docs and modify a bit according to our need , credential provider is the toughest to modify
+        })//for addingGithub provider for signup we'll put a comma after credential provider and will add the github provider , for all the other providers wen just have to copy and paste from the docs and modify a bit according to our need , credential provider is the toughest to modify
     ],
     callbacks:{
         async jwt({ token, user}) { //the "user" we're getting from the providers
             if(user){
+
                 //in the below we're modifying the token
                 token._id=user._id?.toString();
                 token.isVerified=user.isVerified;
@@ -54,6 +55,7 @@ export const authOptions:NextAuthOptions={
         },
         async session({ session,token }) {
             if(token){
+                //we're modifying the session and storing many other datas in it , like the below
                 session.user._id=token._id
                 session.user.isVerified=token.isVerified
                 session.user.isAcceptingMessages=token.isAcceptingMessages

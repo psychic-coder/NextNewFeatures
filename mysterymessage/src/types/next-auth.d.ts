@@ -19,6 +19,8 @@ declare module "next-auth" {
   }
 }
 
+
+
 //we can also modify by using the below method
 declare module "next-auth/jwt" {
   interface JWT {
