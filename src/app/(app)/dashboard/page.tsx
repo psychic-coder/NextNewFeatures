@@ -1,27 +1,29 @@
-"use client";
+'use client';
 
-import MessageCard from "@/components/MessageCard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/components/ui/use-toast";
-import { Message } from "@/model/User";
-import { AcceptMessageSchema } from "@/schemas/acceptMessageSchema";
-import { ApiResponse } from "@/types/ApiResponse";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import { Loader2, RefreshCcw } from "lucide-react";
-import { User } from "next-auth";
-import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 
-const Dashboard = () => {
-  const toast = useToast();
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/components/ui/use-toast';
+import { Message } from '@/model/User';
+import { ApiResponse } from '@/types/ApiResponse';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios, { AxiosError } from 'axios';
+import { Loader2, RefreshCcw } from 'lucide-react';
+import { User } from 'next-auth';
+import { useSession } from 'next-auth/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
+import MessageCard from '@/components/MessageCard';
+import { Input } from '@/components/ui/input';
+
+function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
+
+  const { toast } = useToast();
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter((message) => message._id !== messageId));
@@ -33,23 +35,22 @@ const Dashboard = () => {
     resolver: zodResolver(AcceptMessageSchema),
   });
 
-  //watch is used to keep watch on something
   const { register, watch, setValue } = form;
-  const acceptMessages = watch("acceptMessages");
+  const acceptMessages = watch('acceptMessages');
 
   const fetchAcceptMessages = useCallback(async () => {
     setIsSwitchLoading(true);
     try {
-      const response = await axios.get<ApiResponse>("/api/accept-messages");
-      setValue("acceptMessages", response.data.isAcceptingMessage);
+      const response = await axios.get<ApiResponse>('/api/accept-messages');
+      setValue('acceptMessages', response.data.isAcceptingMessage);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      toast.toast({
-        title: "Error",
+      toast({
+        title: 'Error',
         description:
           axiosError.response?.data.message ??
-          "Failed to fetch message settings",
-        variant: "destructive",
+          'Failed to fetch message settings',
+        variant: 'destructive',
       });
     } finally {
       setIsSwitchLoading(false);
@@ -61,22 +62,21 @@ const Dashboard = () => {
       setIsLoading(true);
       setIsSwitchLoading(false);
       try {
-        const response = await axios.get<ApiResponse>("/api/get-messages");
+        const response = await axios.get<ApiResponse>('/api/get-messages');
         setMessages(response.data.messages || []);
         if (refresh) {
-          toast.toast({
-            title: "Refreshed Messages",
-            description: "Showing latest messages",
+          toast({
+            title: 'Refreshed Messages',
+            description: 'Showing latest messages',
           });
         }
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
-        const err =
-          axiosError.response?.data.message ?? "Failed to fetch messages";
-        toast.toast({
-          title: "Error",
-          description: err,
-          variant: "destructive",
+        toast({
+          title: 'Error',
+          description:
+            axiosError.response?.data.message ?? 'Failed to fetch messages',
+          variant: 'destructive',
         });
       } finally {
         setIsLoading(false);
@@ -86,6 +86,7 @@ const Dashboard = () => {
     [setIsLoading, setMessages, toast]
   );
 
+  // Fetch initial state from the server
   useEffect(() => {
     if (!session || !session.user) return;
 
@@ -94,25 +95,25 @@ const Dashboard = () => {
     fetchAcceptMessages();
   }, [session, setValue, toast, fetchAcceptMessages, fetchMessages]);
 
-  //handle switch change
+  // Handle switch change
   const handleSwitchChange = async () => {
     try {
-      const response = await axios.post<ApiResponse>("/api/accept-messages", {
+      const response = await axios.post<ApiResponse>('/api/accept-messages', {
         acceptMessages: !acceptMessages,
       });
-      setValue("acceptMessages", !acceptMessages);
-      toast.toast({
+      setValue('acceptMessages', !acceptMessages);
+      toast({
         title: response.data.message,
-        variant: "default",
+        variant: 'default',
       });
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      const err =
-        axiosError.response?.data.message ?? "Failed to fetch messages";
-      toast.toast({
-        title: "Error",
-        description: err,
-        variant: "destructive",
+      toast({
+        title: 'Error',
+        description:
+          axiosError.response?.data.message ??
+          'Failed to update message settings',
+        variant: 'destructive',
       });
     }
   };
@@ -121,29 +122,27 @@ const Dashboard = () => {
     return <div></div>;
   }
 
-  const { username } = session?.user as User;
+  const { username } = session.user as User;
 
-  //TODO:DO MORE RESARCH IN URL
-  const baseUrl=`${window.location.protocol}//${window.location.host}`
-  const profileUrl=`${baseUrl}/u/${username}`
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const profileUrl = `${baseUrl}/u/${username}`;
 
-  const copyToClipboard=()=>{
-    navigator.clipboard.writeText(profileUrl)
-    toast.toast({
-      title:"URL copied",
-      description:"Profile URL has been copied to clipboard"
-    })
-  }
-
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(profileUrl);
+    toast({
+      title: 'URL Copied!',
+      description: 'Profile URL has been copied to clipboard.',
+    });
+  };
 
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{" "}
+        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{' '}
         <div className="flex items-center">
-          < Input
+          <Input
             type="text"
             value={profileUrl}
             disabled
@@ -155,13 +154,13 @@ const Dashboard = () => {
 
       <div className="mb-4">
         <Switch
-          {...register("acceptMessages")}
+          {...register('acceptMessages')}
           checked={acceptMessages}
           onCheckedChange={handleSwitchChange}
           disabled={isSwitchLoading}
         />
         <span className="ml-2">
-          Accept Messages: {acceptMessages ? "On" : "Off"}
+          Accept Messages: {acceptMessages ? 'On' : 'Off'}
         </span>
       </div>
       <Separator />
@@ -184,7 +183,7 @@ const Dashboard = () => {
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <MessageCard
-              key={message._id as string}
+              key={index}
               message={message}
               onMessageDelete={handleDeleteMessage}
             />
@@ -195,6 +194,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
+}
 
-export default Dashboard;
+export default UserDashboard;
