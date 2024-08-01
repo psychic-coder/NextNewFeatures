@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }else{
         return NextResponse.json({
             success:false,
-            message:"Incorrect verification codde"
+            message:"Incorrect verification code"
         },{status:400})
     }
 
